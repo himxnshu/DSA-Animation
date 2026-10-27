@@ -49,8 +49,4 @@
 - GitHub: [@himxnshu](https://github.com/himxnshu)
 - LinkedIn: [Himanshu Sharma](https://www.linkedin.com/in/himxnshu01/)
 
----
 
-## 📄 License
-
-MIT License © 2026 Himanshu Sharma
