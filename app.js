@@ -148,10 +148,14 @@ class DSAApp {
       const btn = document.createElement("button");
       btn.className = `lc-pill-btn ${p.id === this.currentProblem?.id ? 'active' : ''}`;
       btn.dataset.problemId = p.id;
+      const diffClass = (p.difficulty || "Easy").toLowerCase();
       btn.innerHTML = `
         <span class="lc-pill-num">#${p.lcNumber}</span>
-        <span>${p.title}</span>
-        <span class="solved-dot" title="Solved by Himanshu">✓</span>
+        <span class="lc-pill-title">${p.title}</span>
+        <span class="lc-pill-diff diff-${diffClass}">${p.difficulty}</span>
+        <a href="${p.lcUrl}" target="_blank" rel="noopener noreferrer" class="lc-pill-ext-link" title="Open ${p.title} on official LeetCode" onclick="event.stopPropagation();">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.246 2.019 5.617 1.906 7.728-.255l3.86-3.93a1.442 1.442 0 0 0-.012-2.029 1.402 1.402 0 0 0-2.012.012l-3.86 3.931c-1.127 1.155-2.928 1.216-4.13.136l-.039-.038-4.277-4.193a3.078 3.078 0 0 1-.659-.943 3.078 3.078 0 0 1-.186-.541 3.088 3.088 0 0 1-.033-1.319c.045-.252.146-.492.296-.703a3.012 3.012 0 0 1 .688-1.2l3.854-4.126 5.406-5.788c.552-.591.524-1.524-.067-2.076A1.374 1.374 0 0 0 13.483 0zm-2.866 12.815a1.38 1.38 0 0 0-1.38 1.382 1.38 1.38 0 0 0 1.38 1.382H20.79a1.38 1.38 0 0 0 1.38-1.382 1.38 1.38 0 0 0-1.38-1.382z"/></svg>
+        </a>
       `;
       btn.addEventListener("click", () => {
         this.loadProblem(p.id);
@@ -265,7 +269,8 @@ class DSAApp {
             <span class="problem-title-text">${prob.title}</span>
             <span class="difficulty-pill ${diffClass}">${prob.difficulty}</span>
             <a href="${prob.lcUrl}" target="_blank" rel="noopener noreferrer" class="dock-lc-link" title="Open ${prob.title} on official LeetCode">
-              🔗 LeetCode #${prob.lcNumber} ↗
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle;"><path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.246 2.019 5.617 1.906 7.728-.255l3.86-3.93a1.442 1.442 0 0 0-.012-2.029 1.402 1.402 0 0 0-2.012.012l-3.86 3.931c-1.127 1.155-2.928 1.216-4.13.136l-.039-.038-4.277-4.193a3.078 3.078 0 0 1-.659-.943 3.078 3.078 0 0 1-.186-.541 3.088 3.088 0 0 1-.033-1.319c.045-.252.146-.492.296-.703a3.012 3.012 0 0 1 .688-1.2l3.854-4.126 5.406-5.788c.552-.591.524-1.524-.067-2.076A1.374 1.374 0 0 0 13.483 0zm-2.866 12.815a1.38 1.38 0 0 0-1.38 1.382 1.38 1.38 0 0 0 1.38 1.382H20.79a1.38 1.38 0 0 0 1.38-1.382 1.38 1.38 0 0 0-1.38-1.382z"/></svg>
+              Solve on LeetCode ↗
             </a>
             <span class="solved-pill">🔥 Solved by Himanshu</span>
           </div>
@@ -1154,7 +1159,9 @@ class DSAApp {
         </div>
         <div class="search-item-right">
           <span class="search-item-diff ${(p.difficulty || 'Easy').toLowerCase()}">${p.difficulty || 'Easy'}</span>
-          <span style="font-size: 10px; color: #4ade80;">✓ Solved</span>
+          <a href="${p.lcUrl}" target="_blank" rel="noopener noreferrer" class="search-item-lc-link" title="Open ${p.title} on official LeetCode" onclick="event.stopPropagation();">
+            LeetCode ↗
+          </a>
         </div>
       `;
 

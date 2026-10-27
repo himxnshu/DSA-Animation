@@ -808,6 +808,94 @@ body.is-landing .landing-display-page {
   color: #ffffff;
 }
 
+/* Colorful Difficulty Tags on Upper LC Pills */
+.lc-pill-diff {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: var(--font-tactical);
+  margin-left: 2px;
+}
+
+.lc-pill-diff.diff-easy {
+  background: rgba(16, 185, 129, 0.22);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.45);
+}
+
+.lc-pill-diff.diff-medium {
+  background: rgba(245, 158, 11, 0.22);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+}
+
+.lc-pill-btn.active .lc-pill-diff {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Interactive Direct LeetCode Link Icon in Pill */
+.lc-pill-ext-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 161, 22, 0.18);
+  color: #ffa116;
+  border: 1px solid rgba(255, 161, 22, 0.45);
+  transition: all 0.2s ease;
+  margin-left: 2px;
+  text-decoration: none;
+}
+
+.lc-pill-ext-link:hover {
+  background: #ffa116;
+  color: #0b1329;
+  transform: scale(1.18);
+  box-shadow: 0 0 10px rgba(255, 161, 22, 0.7);
+}
+
+.lc-pill-btn.active .lc-pill-ext-link {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.lc-pill-btn.active .lc-pill-ext-link:hover {
+  background: #ffffff;
+  color: #dc2626;
+  box-shadow: 0 0 12px #ffffff;
+}
+
+/* Search Dropdown LeetCode Direct Link */
+.search-item-lc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: rgba(255, 161, 22, 0.16);
+  color: #ffa116;
+  border: 1px solid rgba(255, 161, 22, 0.45);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.search-item-lc-link:hover {
+  background: #ffa116;
+  color: #020204;
+  box-shadow: 0 0 10px rgba(255, 161, 22, 0.6);
+  transform: translateY(-1px);
+}
+
 /* =========================================================================
    VIEW 1: LANDING PAGE — Grim Reaper Cosmic Aura & Skull Typography
    ========================================================================= */
