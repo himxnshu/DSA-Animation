@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DSAbyHimanshu — Daily DSA Animations: Brute Force vs Optimal</title>
+  <meta name="description"
+    content="Daily DSA solutions & animations by Himanshu. Interactive side-by-side Brute Force vs Optimal visualizer. Solved: LC-1, LC-49, LC-128, LC-217, LC-238, LC-242.">
+  <link rel="stylesheet" href="styles.css?v=20261027_noir02">
+</head>
+
+<body class="is-landing">
+
+  <!-- Ultra-HD 4K & 1080p Grim Reaper Cosmic Noir Background -->
+  <video id="bg-video" class="bg-video-element" autoplay loop muted playsinline preload="auto"
+    poster="grim_reaper_aura_4k.jpg">
+    <source src="grim_reaper_aura_4k.mp4" type="video/mp4">
+    <source src="grim_reaper_aura_1080p.mp4" type="video/mp4">
+  </video>
+  <div class="bg-video-overlay"></div>
+  <canvas id="bg-3d-canvas" class="bg-canvas-overlay"></canvas>
+
+  <!-- Top App Header (Clean Single Row, No Tab Collisions) -->
+  <header class="app-header" style="position: sticky; top: 0; left: 0; right: 0; z-index: 100;">
+    <div class="header-top">
+      <div class="brand-section" id="brand-logo-btn" title="Click to view Landing Page">
+        <img src="tiger-logo.jpg" alt="Boxing Tiger Logo" class="brand-tiger-logo">
+        <div class="brand-text-group">
+          <h1 class="brand-title">DSAby<span class="accent-gold">Himanshu</span></h1>
+          <span class="brand-tagline">Daily DSA Visualizer</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- View Mode Switchers — Apex Legends Tactical Tabs -->
+        <div class="view-toggle-group">
+          <button id="view-landing-btn" class="view-toggle-btn active" title="Landing Page">
+            <span class="tab-indicator">◆</span> HOME
+          </button>
+          <button id="view-studio-btn" class="view-toggle-btn" title="Interactive Step Visualizer Studio">
+            <span class="tab-indicator">◆</span> STUDIO
+          </button>
+          <button id="view-feedback-btn" class="view-toggle-btn" title="Community Feedback & Genuine Reviews">
+            <span class="tab-indicator">◆</span> REVIEWS
+          </button>
+          <button id="view-sheet-btn" class="view-toggle-btn" title="Infographic Cheat-Sheet Mode">
+            <span class="tab-indicator">◆</span> CHEAT-SHEET
+          </button>
+        </div>
+
+        <!-- Solved Filter Toggle -->
+        <button id="solved-filter-btn" class="solved-filter-btn"
+          title="Solved Problems: LC-1, LC-49, LC-128, LC-217, LC-238, LC-242">
+          <span>🔥</span> SOLVED (6)
+        </button>
+
+        <!-- Search bar with Live Dropdown -->
+        <div class="search-box" id="search-box-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" class="search-input" placeholder="SEARCH LC # OR TITLE..."
+            autocomplete="off">
+          <div id="search-dropdown" class="search-dropdown-menu" style="display: none;"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Upper Tab: LC Numbers Ordered in Ascending Order (Cleaned, only LC-1, LC-217, LC-242) -->
+    <div class="lc-numbers-bar-wrapper" id="lc-numbers-bar-wrapper">
+      <span class="lc-bar-label">LC # (Ascending):</span>
+      <div id="lc-numbers-scroll" class="lc-numbers-scroll">
+        <!-- Rendered dynamically by app.js: #1 Two Sum, #217 Contains Duplicate, #242 Valid Anagram -->
+      </div>
+    </div>
+
+    <!-- Group-wise Pattern Segregation Tabs -->
+    <div id="pattern-tabs-bar" class="pattern-tabs-bar">
+      <!-- Rendered dynamically by app.js -->
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container" style="position: relative; z-index: 10;">
+
+    <!-- =========================================================================
+         VIEW 1: LANDING PAGE — Grim Reaper Cosmic Aura & "LET'S VISUALIZE"
+         ========================================================================= -->
+    <section id="landing-page" class="landing-display-page">
+
+      <!-- Typography directly on top of Grim Reaper's Skull (Radiant Gold / Solar Amber) -->
+      <div class="skull-callout" aria-label="Let's Visualize">
+        <span class="skull-callout-tag">ALGORITHM INTEL IN MOTION</span>
+        <h1 class="skull-callout-title">LET'S VISUALIZE</h1>
+        <div class="skull-callout-decor">
+          <span class="skull-line"></span>
+          <span class="skull-diamond">◆</span>
+          <span class="skull-line"></span>
+        </div>
+      </div>
+
+      <!-- Compact, Unobtrusive Bottom Dock: Zero Heavy Box, 100% Background Visibility -->
+      <div class="landing-minimal-dock">
+        <blockquote class="landing-quote-dock">
+          <p class="landing-quote-text">
+            "Logic will get you from A to B. Imagination will take you everywhere."
+          </p>
+          <cite class="landing-quote-sub">— Albert Einstein</cite>
+        </blockquote>
+
+        <!-- Start Button with Ethereal Cosmic White Halo -->
+        <div class="start-btn-wrapper">
+          <div class="start-btn-backdrop" aria-hidden="true">
+            <span class="pulse-ring ring-1"></span>
+            <span class="pulse-ring ring-2"></span>
+            <span class="pulse-ring ring-3"></span>
+            <span class="glow-aurora"></span>
+          </div>
+
+          <button id="btn-explore-studio" class="btn-start-action" title="Start Exploring DSA Visualizer Studio">
+            <span class="btn-start-label">START EXPLORING</span>
+            <span class="btn-start-arrow">➔</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         VIEW 2: INTERACTIVE VISUALIZER STUDIO
+         ========================================================================= -->
+    <section id="studio-view" class="studio-view" style="display: none;">
+
+      <!-- Studio Navigation Bar with Back Button & Official LeetCode Link -->
+      <div class="studio-back-bar">
+        <button id="btn-back-to-showcase" class="btn-back-showcase" title="Return to 3D Showcase Landing Page">
+          <span>⬅</span> Back to 3D Showcase
+        </button>
+
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <a id="meta-lc-link" href="https://leetcode.com/problems/two-sum/" target="_blank" rel="noopener noreferrer"
+            class="official-lc-btn" title="Open problem on official LeetCode">
+            <span>🔗</span> Open Problem on LeetCode ↗
+          </a>
+        </div>
+      </div>
+
+      <!-- Pattern Hero Banner -->
+      <div id="pattern-hero-banner" class="pattern-hero-banner">
+        <!-- Injected by app.js -->
+      </div>
+
+      <!-- Problem Metadata Card -->
+      <div id="problem-meta-card" class="problem-meta-card">
+        <!-- Injected by app.js -->
+      </div>
+
+      <!-- MASTER RACE & SYNC CONTROLS BAR -->
+      <div class="master-sync-bar">
+        <div class="sync-buttons">
+          <button id="btn-sync-play" class="btn-sync-play"
+            title="Play both Brute Force and Optimal together (Spacebar)">
+            <span>⚡</span> Race Both (Sync Play)
+          </button>
+          <button id="btn-sync-reset" class="ctrl-btn" title="Reset both sides (R)">
+            <span>↺</span> Reset Both
+          </button>
+        </div>
+
+        <!-- Speed Controls -->
+        <div class="speed-group">
+          <span class="speed-label">Speed:</span>
+          <button class="speed-btn" data-speed="0.5">0.5x</button>
+          <button class="speed-btn active" data-speed="1">1x</button>
+          <button class="speed-btn" data-speed="2">2x</button>
+        </div>
+      </div>
+
+      <!-- SIDE-BY-SIDE ANIMATION THEATER (WITH INDEPENDENT CONTROLS) -->
+      <div class="theater-container">
+
+        <!-- LEFT CARD: BRUTE FORCE WITH CODE ABOVE & DEDICATED PLAY/PAUSE -->
+        <div class="theater-card brute-side">
+          <div class="card-header-bar">
+            <div class="paradigm-title-group">
+              <span style="color: var(--color-brute); font-size: 18px;">🔴</span>
+              <div>
+                <span class="paradigm-name">Brute Force Approach</span>
+                <div class="paradigm-sub">Nested Loops • Checks All Pairs • Chokes on large inputs</div>
+              </div>
+            </div>
+            <span id="brute-complexity-badge" class="complexity-pill pill-brute">O(n²) Time</span>
+          </div>
+
+          <!-- CODE EXECUTION WINDOW DIRECTLY ABOVE ANIMATION (Core Request) -->
+          <div class="code-execution-box">
+            <div class="code-box-header">
+              <div class="code-box-title">
+                <span>💻</span> Python Brute Force Code
+              </div>
+              <span id="brute-active-line-badge" class="active-line-badge">▶ Line 1: Ready</span>
+            </div>
+            <div class="code-box-content" id="brute-code-viewer">
+              <!-- Rendered with live active line indicator -->
+            </div>
+          </div>
+
+          <!-- FIRST-TIMER COMPREHENSION & VARIABLE INSPECTOR -->
+          <div class="first-timer-card">
+            <div class="inspector-row">
+              <span class="inspector-title">🔍 Live Variables:</span>
+              <div id="brute-var-inspector" class="inspector-pills">
+                <!-- i, j, nums[i], nums[j] rendered live -->
+              </div>
+            </div>
+            <div id="brute-comprehension-text" class="comprehension-message">
+              Click Play or Step Forward to trace the algorithm step-by-step
+            </div>
+          </div>
+
+          <!-- INDEPENDENT BRUTE FORCE TOOLBAR -->
+          <div class="card-dedicated-controls">
+            <div class="card-ctrl-buttons">
+              <button id="btn-brute-play" class="ctrl-btn btn-play-brute" title="Play/Pause Brute Force (B)">
+                <span>▶</span> Play
+              </button>
+              <button id="btn-brute-prev" class="ctrl-btn" title="Step Back Brute">
+                <span>⏮</span>
+              </button>
+              <button id="btn-brute-next" class="ctrl-btn" title="Step Forward Brute">
+                <span>⏭</span>
+              </button>
+              <button id="btn-brute-reset" class="ctrl-btn" title="Reset Brute">
+                <span>↺</span>
+              </button>
+            </div>
+            <div class="card-progress-wrapper">
+              <span id="brute-counter-text" class="card-step-label">Step 1 / 1</span>
+              <div class="card-progress-track">
+                <div id="brute-progress-bar" class="card-progress-bar bar-brute" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ANIMATION VIEWPORT -->
+          <div id="brute-canvas" class="canvas-viewport">
+            <!-- Dynamic SVG & Array Visuals -->
+          </div>
+
+          <div id="brute-status-text" class="step-status-footer">
+            Click Play or Next Step to begin brute force animation
+          </div>
+        </div>
+
+        <!-- RIGHT CARD: OPTIMAL WITH CODE ABOVE & DEDICATED PLAY/PAUSE -->
+        <div class="theater-card optimal-side">
+          <div class="card-header-bar">
+            <div class="paradigm-title-group">
+              <span style="color: var(--color-optimal); font-size: 18px;">🟢</span>
+              <div>
+                <span class="paradigm-name">Optimal Solution (Pattern Applied)</span>
+                <div class="paradigm-sub">Single Pass • Instant O(1) Memory Lookup • Scales effortlessly</div>
+              </div>
+            </div>
+            <span id="optimal-complexity-badge" class="complexity-pill pill-optimal">O(n) Time</span>
+          </div>
+
+          <!-- CODE EXECUTION WINDOW DIRECTLY ABOVE ANIMATION (Core Request) -->
+          <div class="code-execution-box">
+            <div class="code-box-header">
+              <div class="code-box-title">
+                <span>⚡</span> Python Optimal Hash Code
+              </div>
+              <span id="optimal-active-line-badge" class="active-line-badge">▶ Line 1: Ready</span>
+            </div>
+            <div class="code-box-content" id="optimal-code-viewer">
+              <!-- Rendered with live active line indicator -->
+            </div>
+          </div>
+
+          <!-- FIRST-TIMER COMPREHENSION & VARIABLE INSPECTOR -->
+          <div class="first-timer-card">
+            <div class="inspector-row">
+              <span class="inspector-title">🔍 Live Variables:</span>
+              <div id="optimal-var-inspector" class="inspector-pills">
+                <!-- num, complement, seen map/set rendered live -->
+              </div>
+            </div>
+            <div id="optimal-comprehension-text" class="comprehension-message">
+              Click Play or Next Step to begin optimal animation
+            </div>
+          </div>
+
+          <!-- INDEPENDENT OPTIMAL TOOLBAR -->
+          <div class="card-dedicated-controls">
+            <div class="card-ctrl-buttons">
+              <button id="btn-optimal-play" class="ctrl-btn btn-play-optimal" title="Play/Pause Optimal (O)">
+                <span>▶</span> Play
+              </button>
+              <button id="btn-optimal-prev" class="ctrl-btn" title="Step Back Optimal">
+                <span>⏮</span>
+              </button>
+              <button id="btn-optimal-next" class="ctrl-btn" title="Step Forward Optimal">
+                <span>⏭</span>
+              </button>
+              <button id="btn-optimal-reset" class="ctrl-btn" title="Reset Optimal">
+                <span>↺</span>
+              </button>
+            </div>
+            <div class="card-progress-wrapper">
+              <span id="optimal-counter-text" class="card-step-label">Step 1 / 1</span>
+              <div class="card-progress-track">
+                <div id="optimal-progress-bar" class="card-progress-bar bar-optimal" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ANIMATION VIEWPORT -->
+          <div id="optimal-canvas" class="canvas-viewport">
+            <!-- Dynamic Hash Map / Set / Stack / Pointer Visuals -->
+          </div>
+
+          <div id="optimal-status-text" class="step-status-footer">
+            Click Play or Next Step to begin optimal animation
+          </div>
+        </div>
+
+      </div>
+
+      <!-- EXPLANATION & INTUITION SECTION -->
+      <div class="explanation-section">
+        <!-- Why Brute Force Fails -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="icon">⚠️</span>
+            <h3>Why Brute Force Fails</h3>
+          </div>
+          <div id="why-brute-fails-text">
+            <!-- Injected by app.js -->
+          </div>
+        </div>
+
+        <!-- How Optimal Solution Solves It -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="icon">⚡</span>
+            <h3>How The Pattern Solves It</h3>
+          </div>
+          <div id="how-optimal-works-text">
+            <!-- Injected by app.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- SOLVED EXAMPLE DRY-RUN TABLE -->
+      <div class="info-card" style="margin-bottom: 24px;">
+        <div class="info-card-header">
+          <span class="icon">📊</span>
+          <h3>Step-by-Step Solved Example Dry Run</h3>
+        </div>
+        <div class="dry-run-table-wrapper">
+          <table class="dry-run-table">
+            <thead id="dry-run-table-header">
+              <!-- Dynamically injected -->
+            </thead>
+            <tbody id="dry-run-table-body">
+              <!-- Dynamically injected -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MULTI-LANGUAGE CLEAN CODE VIEWER -->
+      <div class="code-viewer-card">
+        <div class="code-header">
+          <div class="code-lang-tabs">
+            <button class="code-lang-btn active" data-lang="python">Python 3</button>
+            <button class="code-lang-btn" data-lang="javascript">JavaScript</button>
+            <button class="code-lang-btn" data-lang="java">Java</button>
+            <button class="code-lang-btn" data-lang="cpp">C++</button>
+          </div>
+          <button id="copy-code-btn" class="copy-btn">📋 Copy Code</button>
+        </div>
+        <pre id="code-content" class="code-content"><code></code></pre>
+      </div>
+
+      <!-- COMMUNITY FEEDBACK & REVIEWS SECTION (Genuine Feedback Only) -->
+      <section class="feedback-section" id="community-feedback">
+        <div class="feedback-header">
+          <div class="feedback-title-group">
+            <h2><span>💬</span> Community Feedback & Reviews</h2>
+            <p class="feedback-tagline">Genuine reviews from learners. Share your thoughts with Himanshu!</p>
+          </div>
+
+          <div class="sentiment-pulse">
+            <div class="rating-big-score" id="rating-score">5.0</div>
+            <div class="score-details">
+              <div class="stars-row">★★★★★</div>
+              <span class="reviews-count-label" id="reviews-count">0 genuine reviews</span>
+            </div>
+            <div class="pulse-stat">
+              <span class="pulse-pct" id="good-percentage">100%</span>
+              <span class="pulse-label">Rated Good 👍</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="feedback-grid">
+          <!-- Submit Feedback Form -->
+          <div class="comment-form-box">
+            <h3>Drop Your Genuine Feedback / Review</h3>
+            <form id="comment-form">
+              <div class="form-group">
+                <label class="form-label" for="comment-author">Your Name / Handle:</label>
+                <input type="text" id="comment-author" class="form-input" placeholder="e.g. Rahul (LeetCode Learner)"
+                  required>
+              </div>
+
+              <!-- Email Section so Himanshu can get email of commenters -->
+              <div class="form-group">
+                <label class="form-label" for="comment-email">Your Email Address (Direct to Himanshu):</label>
+                <input type="email" id="comment-email" class="form-input" placeholder="e.g. rahul.coder@gmail.com"
+                  required>
+                <span style="font-size: 11px; color: var(--text-dim); margin-top: 4px; display: block;">🔒 Your email is
+                  sent to Himanshu so he can notify you about new DSA solutions.</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Rate the Website:</label>
+                <div class="star-rating-select">
+                  <span class="star selected" data-val="1">★</span>
+                  <span class="star selected" data-val="2">★</span>
+                  <span class="star selected" data-val="3">★</span>
+                  <span class="star selected" data-val="4">★</span>
+                  <span class="star selected" data-val="5">★</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="comment-verdict">Your Verdict:</label>
+                <select id="comment-verdict" class="form-select">
+                  <option value="good">Good 👍 (Super Helpful)</option>
+                  <option value="improve">Needs Improvement 💡</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="comment-message">Your Review / Suggestions:</label>
+                <textarea id="comment-message" class="form-textarea" rows="3"
+                  placeholder="What did you like about the brute vs optimal animations? What problem should Himanshu solve next?"
+                  required></textarea>
+              </div>
+
+              <button type="submit" class="btn-submit-review">🚀 Post Genuine Review</button>
+            </form>
+          </div>
+
+          <!-- RIGHT SIDE: Feed of User Reviews with Email Export Header -->
+          <div class="comments-feed-container">
+            <div class="comments-feed-header">
+              <h3 style="font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                <span>💬</span> Live Comments (Right Side)
+              </h3>
+              <button id="btn-export-emails" class="btn-export-emails"
+                title="Export / Copy all collected emails to clipboard">
+                📥 Export Emails (<span id="email-count-badge">0</span>)
+              </button>
+            </div>
+            <div class="comments-feed" id="comments-list">
+              <!-- Dynamically populated from localStorage (genuine only) -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </section>
+
+    <!-- VIEW 3: INFOGRAPHIC CHEAT SHEET -->
+    <section id="sheet-view" class="cheat-sheet-view" style="display: none;">
+      <!-- Dynamically populated by app.js -->
+    </section>
+
+  </main>
+
+  <!-- Global App Footer with Portfolio Credit -->
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <div class="footer-creator-line">
+        <span>Crafted & Engineered with precision by </span>
+        <a href="https://himxnshu.vercel.app/" target="_blank" rel="noopener noreferrer" class="footer-portfolio-link">
+          <strong>Himanshu Sharma</strong> ↗
+        </a>
+      </div>
+      <div class="footer-socials">
+        <a href="https://himxnshu.vercel.app/" target="_blank" rel="noopener noreferrer" class="social-badge badge-portfolio" title="Himanshu's Personal Portfolio & Visual Projects">
+          <svg class="social-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <span>Portfolio</span>
+        </a>
+        <a href="https://github.com/himxnshu" target="_blank" rel="noopener noreferrer" class="social-badge badge-github" title="Himanshu on GitHub">
+          <svg class="social-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          <span>GitHub</span>
+        </a>
+        <a href="https://www.linkedin.com/in/himxnshu01/" target="_blank" rel="noopener noreferrer" class="social-badge badge-linkedin" title="Himanshu on LinkedIn">
+          <svg class="social-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+          </svg>
+          <span>LinkedIn</span>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts with cache busters -->
+  <script src="background-3d.js?v=20261027_noir01"></script>
+  <script src="problems-data.js?v=20261027_4k01"></script>
+  <script src="visualizer.js?v=20261027_4k01"></script>
+  <script src="app.js?v=20261027_4k01"></script>
+</body>
+
+</html>

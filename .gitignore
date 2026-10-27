@@ -1,0 +1,9 @@
+# Archives exceeding GitHub 100MB file limit
+*.zip
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
