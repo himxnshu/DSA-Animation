@@ -9,59 +9,6 @@
  * - Genuine Community Reviews only (no mock comments, persisted via LocalStorage)
  */
 
-const DEFAULT_COMMUNITY_REVIEWS = [
-  {
-    id: "cr-1",
-    author: "Aditya Verma (SDE-1 @ Bangalore)",
-    email: "aditya.v***@gmail.com",
-    rating: 5,
-    verdict: "good",
-    message: "The side-by-side race between Brute Force O(n²) and Hash Set O(n) for Contains Duplicate is pure genius! Seeing the nested loops crawl while hash set finishes in a single pass is the best visual explanation on the web.",
-    date: "Oct 26, 2026",
-    likes: 28
-  },
-  {
-    id: "cr-2",
-    author: "Elena Rostova",
-    email: "elena.dev***@outlook.com",
-    rating: 5,
-    verdict: "good",
-    message: "Product of Array Except Self (LC-238) prefix and suffix passes animation is unmatched. The step-by-step calculation showing running product without division cleared all my doubts for upcoming Amazon interview.",
-    date: "Oct 25, 2026",
-    likes: 22
-  },
-  {
-    id: "cr-3",
-    author: "Kavya Murthy",
-    email: "kavya.m***@gmail.com",
-    rating: 5,
-    verdict: "good",
-    message: "Longest Consecutive Sequence (LC-128) and Group Anagrams (LC-49) animations are phenomenal. The live code line highlights directly above the canvas make dry runs so intuitive.",
-    date: "Oct 24, 2026",
-    likes: 19
-  },
-  {
-    id: "cr-4",
-    author: "Marcus Chen (UC Berkeley CS)",
-    email: "mchen.cs***@berkeley.edu",
-    rating: 5,
-    verdict: "good",
-    message: "The Two Sum target complement lookup arc is so satisfying to watch. Please add Two Pointers (LC-167) and 3Sum (LC-15) next! Bookmarked and shared with my university study group.",
-    date: "Oct 23, 2026",
-    likes: 15
-  },
-  {
-    id: "cr-5",
-    author: "Rohan Singhal",
-    email: "rohan.sde***@yahoo.com",
-    rating: 5,
-    verdict: "good",
-    message: "Outstanding work Himanshu! Having the real Python line highlights in sync with memory variables is a game changer for visual learners. Solved all 6 with complete clarity.",
-    date: "Oct 22, 2026",
-    likes: 11
-  }
-];
-
 class DSAApp {
   constructor() {
     try {
@@ -118,17 +65,13 @@ class DSAApp {
 
     this.btnBackToShowcase = document.getElementById("btn-back-to-showcase");
     this.btnExploreStudio = document.getElementById("btn-explore-studio");
-    this.btnOpenReviews = document.getElementById("btn-open-reviews");
     this.btnStudioOpenReviews = document.getElementById("btn-studio-open-reviews");
     this.metaLcLink = document.getElementById("meta-lc-link");
 
-    // Email & Review Elements
+    // Email & Review Elements (Genuine Community Reviews)
     this.emailInput = document.getElementById("comment-email");
     this.btnExportEmails = document.getElementById("btn-export-emails");
     this.emailCountBadge = document.getElementById("email-count-badge");
-    this.landingReviewsCard = document.getElementById("landing-reviews-preview");
-    this.landingLatestComment = document.getElementById("landing-latest-comment");
-    this.landingReviewsCount = document.getElementById("landing-reviews-count");
     this.feedLiveCount = document.getElementById("feed-live-count");
     this.filterAllBadge = document.getElementById("filter-all-badge");
     this.filter5starBadge = document.getElementById("filter-5star-badge");
@@ -753,31 +696,22 @@ class DSAApp {
       }
     }
 
-    // Load genuine reviews from localStorage, merged with verified default community reviews
+    // Load genuine reviews only from localStorage; automatically purge any mock/default reviews
     const saved = localStorage.getItem("dsabyhimanshu_comments");
     let userComments = [];
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          userComments = parsed;
+          // Strictly keep only genuine user reviews (purges any mock items like 'cr-1', 'cr-2', etc.)
+          userComments = parsed.filter(c => c && c.id && !String(c.id).startsWith("cr-"));
         }
       } catch (e) {
         userComments = [];
       }
     }
 
-    // Merge: user submitted comments first, followed by default community reviews (deduped by id)
-    const seenIds = new Set();
-    const merged = [];
-    [...userComments, ...DEFAULT_COMMUNITY_REVIEWS].forEach(c => {
-      if (c && c.id && !seenIds.has(c.id)) {
-        seenIds.add(c.id);
-        merged.push(c);
-      }
-    });
-
-    this.comments = merged;
+    this.comments = userComments;
     this.saveComments();
     this.renderComments();
     this.updateSentimentStats();
@@ -803,6 +737,28 @@ class DSAApp {
     });
   }
 
+  escapeHTML(str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  maskEmail(email) {
+    if (!email) return "Direct to Himanshu";
+    const parts = email.split("@");
+    if (parts.length !== 2) return email;
+    const name = parts[0];
+    const domain = parts[1];
+    if (name.length <= 2) {
+      return name + "***@" + domain;
+    }
+    return name.slice(0, 2) + "***@" + domain;
+  }
+
   saveComments() {
     localStorage.setItem("dsabyhimanshu_comments", JSON.stringify(this.comments));
   }
@@ -824,85 +780,69 @@ class DSAApp {
     if (this.filter5starBadge) this.filter5starBadge.textContent = this.comments.filter(c => c.rating === 5).length;
     if (this.filterGoodBadge) this.filterGoodBadge.textContent = this.comments.filter(c => c.verdict === "good").length;
     if (this.feedLiveCount) this.feedLiveCount.textContent = list.length;
+    if (this.emailCountBadge) {
+      this.emailCountBadge.textContent = this.comments.filter(c => c.email).length;
+    }
 
-    // Empty state
+    // Clean empty state when no genuine reviews exist
     if (list.length === 0) {
       this.commentsListEl.innerHTML = `
         <div class="empty-comments-callout">
-          <div style="font-size: 32px; margin-bottom: 8px;">💬</div>
-          <div style="font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 6px;">No Reviews Found in This Category</div>
-          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
-            Be the first to share your review or suggestions on the left side!
+          <div style="font-size: 38px; margin-bottom: 12px;">💬</div>
+          <div style="font-size: 16px; font-weight: 800; color: #fff; margin-bottom: 8px;">No Reviews Yet</div>
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; max-width: 380px; margin: 0 auto 12px;">
+            Be the first genuine learner to share your review, feedback, or suggestions using the form on the left!
           </p>
+          <div style="font-size: 11px; color: var(--color-gold); font-family: 'JetBrains Mono', monospace;">
+            ✍️ Submit your review above to be displayed live
+          </div>
         </div>
       `;
-    } else {
-      list.forEach((c) => {
-        const card = document.createElement("div");
-        card.className = `comment-card ${c.justAdded ? 'just-added' : ''}`;
-        const starsStr = "★".repeat(c.rating || 5) + "☆".repeat(Math.max(0, 5 - (c.rating || 5)));
-        const isGood = c.verdict === "good";
-
-        card.innerHTML = `
-          <div class="comment-header">
-            <div class="comment-author-info">
-              <span class="comment-avatar">${(c.author || "A").charAt(0).toUpperCase()}</span>
-              <div>
-                <div class="comment-author-name">${c.author} <span class="verified-tag">✓ Verified Learner</span></div>
-                <div class="comment-date">${c.date || "Recent"}</div>
-              </div>
-            </div>
-            <div class="comment-verdict-badge ${isGood ? 'verdict-good' : 'verdict-improve'}">
-              ${isGood ? '👍 Super Helpful' : '💡 Needs Work'}
-            </div>
-          </div>
-          <div class="comment-stars">${starsStr}</div>
-          <div class="comment-body">${c.message}</div>
-          <div style="font-size: 11px; color: var(--color-cyan); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">
-            ✉ ${c.email ? c.email.replace(/(.{2})(.*)(@.*)/, "$1***$3") : "Direct to Himanshu"}
-          </div>
-          <div class="comment-footer">
-            <button class="like-btn" data-id="${c.id}" title="Helpful review">
-              ❤️ <span class="like-count">${c.likes || 1}</span>
-            </button>
-          </div>
-        `;
-
-        const likeBtn = card.querySelector(".like-btn");
-        if (likeBtn) {
-          likeBtn.addEventListener("click", () => {
-            c.likes = (c.likes || 0) + 1;
-            likeBtn.querySelector(".like-count").textContent = c.likes;
-            this.saveComments();
-          });
-        }
-
-        this.commentsListEl.appendChild(card);
-      });
+      return;
     }
 
-    // Update Live Comment Preview on the Landing Page Dock
-    if (this.landingLatestComment && this.comments.length > 0) {
-      const latest = this.comments[0];
-      const starsStr = "★".repeat(latest.rating || 5) + "☆".repeat(Math.max(0, 5 - (latest.rating || 5)));
-      this.landingLatestComment.innerHTML = `
-        <div class="landing-comment-author-row">
-          <span class="landing-comment-author-name">${latest.author}</span>
-          <span class="landing-comment-stars">${starsStr}</span>
+    list.forEach((c) => {
+      const card = document.createElement("div");
+      card.className = `comment-card ${c.justAdded ? 'just-added' : ''}`;
+      const starsStr = "★".repeat(c.rating || 5) + "☆".repeat(Math.max(0, 5 - (c.rating || 5)));
+      const isGood = c.verdict === "good";
+
+      card.innerHTML = `
+        <div class="comment-header">
+          <div class="comment-author-info">
+            <span class="comment-avatar">${(c.author || "A").charAt(0).toUpperCase()}</span>
+            <div>
+              <div class="comment-author-name">${this.escapeHTML(c.author)} <span class="verified-tag">✓ Genuine Reviewer</span></div>
+              <div class="comment-date">${c.date || "Recent"}</div>
+            </div>
+          </div>
+          <div class="comment-verdict-badge ${isGood ? 'verdict-good' : 'verdict-improve'}">
+            ${isGood ? '👍 Super Helpful' : '💡 Needs Work'}
+          </div>
         </div>
-        <div style="font-size: 12px; color: var(--text-main); margin-bottom: 4px; line-height: 1.4;">"${latest.message.slice(0, 90)}${latest.message.length > 90 ? '...' : ''}"</div>
-        <div style="font-size: 10px; color: var(--color-cyan); font-family: 'JetBrains Mono', monospace;">✓ Verified Learner • ${latest.date || "Recent"}</div>
+        <div class="comment-stars">${starsStr}</div>
+        <div class="comment-body">${this.escapeHTML(c.message)}</div>
+        <div style="font-size: 11px; color: var(--color-cyan); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">
+          ✉ ${this.maskEmail(c.email)}
+        </div>
+        <div class="comment-footer">
+          <button class="like-btn" data-id="${c.id}" title="Mark as helpful">
+            ❤️ <span class="like-count">${c.likes || 1}</span>
+          </button>
+        </div>
       `;
-    }
 
-    if (this.landingReviewsCount) {
-      this.landingReviewsCount.textContent = `${this.comments.length} Review${this.comments.length > 1 ? 's' : ''}`;
-    }
+      const likeBtn = card.querySelector(".like-btn");
+      if (likeBtn) {
+        likeBtn.addEventListener("click", () => {
+          c.likes = (c.likes || 0) + 1;
+          likeBtn.querySelector(".like-count").textContent = c.likes;
+          this.saveComments();
+        });
+      }
 
-    if (this.emailCountBadge) {
-      const emailCount = this.comments.filter(c => c.email).length;
-      this.emailCountBadge.textContent = emailCount;
-    }
+      this.commentsListEl.appendChild(card);
+    });
   }
 
   updateSentimentStats() {
@@ -912,8 +852,8 @@ class DSAApp {
     const countEl = document.getElementById("reviews-count");
 
     if (total === 0) {
-      if (scoreEl) scoreEl.textContent = "5.0";
-      if (pctEl) pctEl.textContent = "100%";
+      if (scoreEl) scoreEl.textContent = "—";
+      if (pctEl) pctEl.textContent = "—";
       if (countEl) countEl.textContent = "0 genuine reviews";
       return;
     }
@@ -925,18 +865,24 @@ class DSAApp {
     if (scoreEl) scoreEl.textContent = avgRating;
     if (pctEl) pctEl.textContent = `${goodPct}%`;
     if (countEl) countEl.textContent = `${total} genuine review${total > 1 ? 's' : ''}`;
-    if (this.landingReviewsCount) this.landingReviewsCount.textContent = `${total} Review${total > 1 ? 's' : ''}`;
   }
 
   addComment(author, email, message, rating, verdict) {
+    const now = new Date();
+    const dateFormatted = now.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    });
+
     const newComment = {
       id: `c-${Date.now()}`,
-      author: author || "Anonymous Coder",
-      email: email || "",
+      author: (author || "").trim() || "Anonymous Learner",
+      email: (email || "").trim(),
       rating: rating || 5,
       verdict: verdict || "good",
-      message: message,
-      date: "Just now",
+      message: (message || "").trim(),
+      date: dateFormatted,
       likes: 1,
       justAdded: true
     };
@@ -949,7 +895,7 @@ class DSAApp {
     });
     this.renderComments();
     this.updateSentimentStats();
-    this.showReviewToast("🎉 Thank you! Your review has been published and is now live below.", "success");
+    this.showReviewToast("🎉 Thank you! Your genuine review has been posted and is live below.", "success");
   }
 
   // =========================================================================
@@ -1021,9 +967,7 @@ class DSAApp {
     // Back to Showcase button inside Studio
     if (this.btnBackToShowcase) this.btnBackToShowcase.addEventListener("click", () => this.switchView("landing"));
     if (this.btnExploreStudio) this.btnExploreStudio.addEventListener("click", () => this.switchView("studio"));
-    if (this.btnOpenReviews) this.btnOpenReviews.addEventListener("click", () => this.switchView("feedback"));
     if (this.btnStudioOpenReviews) this.btnStudioOpenReviews.addEventListener("click", () => this.switchView("feedback"));
-    if (this.landingReviewsCard) this.landingReviewsCard.addEventListener("click", () => this.switchView("feedback"));
 
     // Review Filter Tabs
     document.querySelectorAll(".review-filter-chip").forEach(chip => {
@@ -1097,8 +1041,11 @@ class DSAApp {
         }
 
         this.addComment(author, email, msg, this.currentStarRating, verdict);
+        if (this.authorInput) this.authorInput.value = "";
         if (this.messageInput) this.messageInput.value = "";
         if (this.emailInput) this.emailInput.value = "";
+        this.currentStarRating = 5;
+        this.updateStarRatingDisplay(5);
       });
     }
 

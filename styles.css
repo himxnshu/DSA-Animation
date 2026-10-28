@@ -2567,12 +2567,16 @@ a.dock-lc-link:hover {
 
 .empty-comments-callout {
   text-align: center;
-  padding: 30px;
+  padding: 42px 24px;
   color: var(--text-muted);
   font-size: 14px;
-  background: var(--bg-surface-elevated);
+  background: rgba(14, 21, 38, 0.45);
   border-radius: var(--radius-md);
-  border: 1px dashed var(--border-subtle);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .comment-card {
@@ -2680,39 +2684,6 @@ a.dock-lc-link:hover {
   background: var(--color-gold);
   color: #0f172a;
   box-shadow: 0 0 12px rgba(250, 204, 21, 0.45);
-}
-
-/* Landing Page Right Side Comments Box */
-.landing-comments-preview {
-  background: rgba(14, 21, 38, 0.75);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 12px;
-  margin-top: 10px;
-}
-
-.landing-latest-card {
-  font-size: 12px;
-  color: var(--text-main);
-  line-height: 1.5;
-}
-
-.landing-comment-author-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-
-.landing-comment-author-name {
-  font-weight: 800;
-  color: var(--color-gold);
-}
-
-.landing-comment-stars {
-  color: var(--color-gold);
-  font-size: 11px;
 }
 
 /* Footer */
@@ -3531,47 +3502,6 @@ body:not(.is-landing) .app-footer {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* Landing Page Reviews Preview Badge & Link Button */
-.landing-reviews-badge {
-  background: rgba(250, 204, 21, 0.18);
-  border: 1px solid rgba(250, 204, 21, 0.45);
-  color: var(--color-gold);
-  font-size: 11px;
-  font-weight: 800;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-family: var(--font-tactical);
-  letter-spacing: 0.5px;
-}
-
-.landing-reviews-link-btn {
-  width: 100%;
-  margin-top: 8px;
-  padding: 7px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-sm);
-  color: #94a3b8;
-  font-size: 11.5px;
-  font-weight: 700;
-  font-family: var(--font-tactical);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-}
-
-.landing-reviews-link-btn:hover {
-  background: rgba(220, 38, 38, 0.2);
-  border-color: #ef4444;
-  color: #ffffff;
-  transform: translateY(-1px);
 }
 
 /* Studio Feedback Banner */
