@@ -961,7 +961,7 @@ public:
       }
     },
 
-    solutions: {
+    code: {
       python: `class Solution:
     def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
         ans = collections.defaultdict(list)
@@ -1247,7 +1247,7 @@ public:
       }
     },
 
-    solutions: {
+    code: {
       python: `class Solution:
     def longestConsecutive(self, nums: List[int]) -> int:
         num_set = set(nums)
@@ -1304,7 +1304,6 @@ public:
       { num: "2", hasPredecessor: "1 in set? YES", action: "Skip ⏩ (Not root)", longest: "4" }
     ]
   },
-,
 
   // ==========================================
   // LC-238: Product of Array Except Self
@@ -1531,7 +1530,7 @@ public:
       }
     },
 
-    solutions: {
+    code: {
       python: `class Solution:
     def productExceptSelf(self, nums: List[int]) -> List[int]:
         res = [1] * len(nums)

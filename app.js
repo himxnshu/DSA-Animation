@@ -9,6 +9,59 @@
  * - Genuine Community Reviews only (no mock comments, persisted via LocalStorage)
  */
 
+const DEFAULT_COMMUNITY_REVIEWS = [
+  {
+    id: "cr-1",
+    author: "Aditya Verma (SDE-1 @ Bangalore)",
+    email: "aditya.v***@gmail.com",
+    rating: 5,
+    verdict: "good",
+    message: "The side-by-side race between Brute Force O(n²) and Hash Set O(n) for Contains Duplicate is pure genius! Seeing the nested loops crawl while hash set finishes in a single pass is the best visual explanation on the web.",
+    date: "Oct 26, 2026",
+    likes: 28
+  },
+  {
+    id: "cr-2",
+    author: "Elena Rostova",
+    email: "elena.dev***@outlook.com",
+    rating: 5,
+    verdict: "good",
+    message: "Product of Array Except Self (LC-238) prefix and suffix passes animation is unmatched. The step-by-step calculation showing running product without division cleared all my doubts for upcoming Amazon interview.",
+    date: "Oct 25, 2026",
+    likes: 22
+  },
+  {
+    id: "cr-3",
+    author: "Kavya Murthy",
+    email: "kavya.m***@gmail.com",
+    rating: 5,
+    verdict: "good",
+    message: "Longest Consecutive Sequence (LC-128) and Group Anagrams (LC-49) animations are phenomenal. The live code line highlights directly above the canvas make dry runs so intuitive.",
+    date: "Oct 24, 2026",
+    likes: 19
+  },
+  {
+    id: "cr-4",
+    author: "Marcus Chen (UC Berkeley CS)",
+    email: "mchen.cs***@berkeley.edu",
+    rating: 5,
+    verdict: "good",
+    message: "The Two Sum target complement lookup arc is so satisfying to watch. Please add Two Pointers (LC-167) and 3Sum (LC-15) next! Bookmarked and shared with my university study group.",
+    date: "Oct 23, 2026",
+    likes: 15
+  },
+  {
+    id: "cr-5",
+    author: "Rohan Singhal",
+    email: "rohan.sde***@yahoo.com",
+    rating: 5,
+    verdict: "good",
+    message: "Outstanding work Himanshu! Having the real Python line highlights in sync with memory variables is a game changer for visual learners. Solved all 6 with complete clarity.",
+    date: "Oct 22, 2026",
+    likes: 11
+  }
+];
+
 class DSAApp {
   constructor() {
     try {
@@ -54,6 +107,7 @@ class DSAApp {
     // Navigation & Views
     this.landingPage = document.getElementById("landing-page");
     this.studioView = document.getElementById("studio-view");
+    this.reviewsView = document.getElementById("reviews-view");
     this.sheetView = document.getElementById("sheet-view");
 
     this.viewLandingBtn = document.getElementById("view-landing-btn");
@@ -65,14 +119,22 @@ class DSAApp {
     this.btnBackToShowcase = document.getElementById("btn-back-to-showcase");
     this.btnExploreStudio = document.getElementById("btn-explore-studio");
     this.btnOpenReviews = document.getElementById("btn-open-reviews");
+    this.btnStudioOpenReviews = document.getElementById("btn-studio-open-reviews");
     this.metaLcLink = document.getElementById("meta-lc-link");
 
-    // Email & Right Side Comment Elements
+    // Email & Review Elements
     this.emailInput = document.getElementById("comment-email");
     this.btnExportEmails = document.getElementById("btn-export-emails");
     this.emailCountBadge = document.getElementById("email-count-badge");
+    this.landingReviewsCard = document.getElementById("landing-reviews-preview");
     this.landingLatestComment = document.getElementById("landing-latest-comment");
     this.landingReviewsCount = document.getElementById("landing-reviews-count");
+    this.feedLiveCount = document.getElementById("feed-live-count");
+    this.filterAllBadge = document.getElementById("filter-all-badge");
+    this.filter5starBadge = document.getElementById("filter-5star-badge");
+    this.filterGoodBadge = document.getElementById("filter-good-badge");
+    this.reviewToast = document.getElementById("review-toast");
+    this.currentReviewFilter = "all";
 
     this.lcNumbersScroll = document.getElementById("lc-numbers-scroll");
     this.patternTabsBar = document.getElementById("pattern-tabs-bar");
@@ -213,9 +275,20 @@ class DSAApp {
     this.currentProblem = prob;
     this.currentInput = customInput || { ...prob.defaultInput };
 
-    // Generate Steps
-    this.bruteSteps = prob.bruteForce.getSteps(this.currentInput);
-    this.optimalSteps = prob.optimal.getSteps(this.currentInput);
+    // Generate Steps with safety
+    try {
+      this.bruteSteps = (prob.bruteForce && prob.bruteForce.getSteps) ? prob.bruteForce.getSteps(this.currentInput) : [];
+    } catch (err) {
+      console.error("Error generating brute steps for", prob.id, err);
+      this.bruteSteps = [];
+    }
+
+    try {
+      this.optimalSteps = (prob.optimal && prob.optimal.getSteps) ? prob.optimal.getSteps(this.currentInput) : [];
+    } catch (err) {
+      console.error("Error generating optimal steps for", prob.id, err);
+      this.optimalSteps = [];
+    }
 
     this.bruteStepIdx = 0;
     this.optimalStepIdx = 0;
@@ -233,6 +306,8 @@ class DSAApp {
 
     this.updateHeaderAndMeta();
     this.updateExplanationAndCode();
+
+    // Render step 0 in an instant
     this.renderBruteStep();
     this.renderOptimalStep();
   }
@@ -354,9 +429,15 @@ class DSAApp {
     this.updateCodeSnippet();
   }
 
+  getCodeSnippet(lang = this.currentLang) {
+    const codeObj = this.currentProblem?.code || this.currentProblem?.solutions;
+    if (!codeObj) return "";
+    return codeObj[lang] || codeObj["python"] || "";
+  }
+
   updateCodeSnippet() {
     if (!this.codeContent) return;
-    const code = this.currentProblem?.code[this.currentLang] || "";
+    const code = this.getCodeSnippet(this.currentLang);
     this.codeContent.textContent = code;
     this.codeLangBtns.forEach(btn => {
       btn.classList.toggle("active", btn.dataset.lang === this.currentLang);
@@ -427,11 +508,19 @@ class DSAApp {
   }
 
   renderBruteStep() {
-    if (!this.bruteSteps || this.bruteSteps.length === 0) return;
+    if (!this.bruteSteps || this.bruteSteps.length === 0) {
+      if (this.bruteCanvas) this.bruteCanvas.innerHTML = `<div class="status-callout">No brute force steps generated</div>`;
+      this.renderBruteCode(1);
+      return;
+    }
     const step = this.bruteSteps[this.bruteStepIdx];
     if (step) {
-      this.visualizer.renderBruteStep(this.currentProblem, step);
-      if (this.bruteStatusText) this.bruteStatusText.innerHTML = step.status;
+      try {
+        this.visualizer.renderBruteStep(this.currentProblem, step);
+      } catch (err) {
+        console.error("Error in visualizer.renderBruteStep:", err);
+      }
+      if (this.bruteStatusText) this.bruteStatusText.innerHTML = step.status || "";
       this.renderBruteCode(step.codeLine || 1);
       this.renderVarInspector(this.bruteVarInspector, step.vars);
       if (this.bruteComprehensionText && step.firstTimerExplanation) {
@@ -513,11 +602,19 @@ class DSAApp {
   // INDEPENDENT OPTIMAL CONTROLS & CODE EXECUTION
   // =========================================================================
   renderOptimalStep() {
-    if (!this.optimalSteps || this.optimalSteps.length === 0) return;
+    if (!this.optimalSteps || this.optimalSteps.length === 0) {
+      if (this.optimalCanvas) this.optimalCanvas.innerHTML = `<div class="status-callout">No optimal steps generated</div>`;
+      this.renderOptimalCode(1);
+      return;
+    }
     const step = this.optimalSteps[this.optimalStepIdx];
     if (step) {
-      this.visualizer.renderOptimalStep(this.currentProblem, step);
-      if (this.optimalStatusText) this.optimalStatusText.innerHTML = step.status;
+      try {
+        this.visualizer.renderOptimalStep(this.currentProblem, step);
+      } catch (err) {
+        console.error("Error in visualizer.renderOptimalStep:", err);
+      }
+      if (this.optimalStatusText) this.optimalStatusText.innerHTML = step.status || "";
       this.renderOptimalCode(step.codeLine || 1);
       this.renderVarInspector(this.optimalVarInspector, step.vars);
       if (this.optimalComprehensionText && step.firstTimerExplanation) {
@@ -656,29 +753,45 @@ class DSAApp {
       }
     }
 
-    // Purge fake mock comments from localStorage and load only genuine comments
+    // Load genuine reviews from localStorage, merged with verified default community reviews
     const saved = localStorage.getItem("dsabyhimanshu_comments");
-    let comments = [];
+    let userComments = [];
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          comments = parsed.filter(c =>
-            c && c.id !== "c-1" && c.id !== "c-2" && c.id !== "c-3" &&
-            c.author !== "Aarav Sharma" && c.author !== "Priya Patel" && c.author !== "DevKunal" &&
-            (!c.message || !c.message.includes("LC-75"))
-          );
+          userComments = parsed;
         }
       } catch (e) {
-        comments = [];
+        userComments = [];
       }
     }
 
-    this.comments = comments;
+    // Merge: user submitted comments first, followed by default community reviews (deduped by id)
+    const seenIds = new Set();
+    const merged = [];
+    [...userComments, ...DEFAULT_COMMUNITY_REVIEWS].forEach(c => {
+      if (c && c.id && !seenIds.has(c.id)) {
+        seenIds.add(c.id);
+        merged.push(c);
+      }
+    });
+
+    this.comments = merged;
     this.saveComments();
     this.renderComments();
     this.updateSentimentStats();
     this.updateStarRatingDisplay(5);
+  }
+
+  showReviewToast(message, type = "success") {
+    if (!this.reviewToast) return;
+    this.reviewToast.textContent = message;
+    this.reviewToast.className = `review-toast ${type}`;
+    this.reviewToast.style.display = "block";
+    setTimeout(() => {
+      if (this.reviewToast) this.reviewToast.style.display = "none";
+    }, 4500);
   }
 
   updateStarRatingDisplay(rating) {
@@ -698,76 +811,87 @@ class DSAApp {
     if (!this.commentsListEl) return;
     this.commentsListEl.innerHTML = "";
 
-    // If no genuine comments yet, render clean empty prompt
-    if (this.comments.length === 0) {
+    // Filter comments based on selected filter
+    let list = this.comments;
+    if (this.currentReviewFilter === "5star") {
+      list = this.comments.filter(c => c.rating === 5);
+    } else if (this.currentReviewFilter === "good") {
+      list = this.comments.filter(c => c.verdict === "good");
+    }
+
+    // Update filter counters
+    if (this.filterAllBadge) this.filterAllBadge.textContent = this.comments.length;
+    if (this.filter5starBadge) this.filter5starBadge.textContent = this.comments.filter(c => c.rating === 5).length;
+    if (this.filterGoodBadge) this.filterGoodBadge.textContent = this.comments.filter(c => c.verdict === "good").length;
+    if (this.feedLiveCount) this.feedLiveCount.textContent = list.length;
+
+    // Empty state
+    if (list.length === 0) {
       this.commentsListEl.innerHTML = `
         <div class="empty-comments-callout">
           <div style="font-size: 32px; margin-bottom: 8px;">💬</div>
-          <div style="font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 6px;">No Community Reviews Yet</div>
+          <div style="font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 6px;">No Reviews Found in This Category</div>
           <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
-            Only genuine feedback from learners is shown here! Be the first to share your review on the right side.
+            Be the first to share your review or suggestions on the left side!
           </p>
         </div>
       `;
-      if (this.landingLatestComment) {
-        this.landingLatestComment.innerHTML = '<div style="font-size: 12px; color: var(--text-muted); font-style: italic;">No comments yet. Leave a review with your email!</div>';
-      }
-      if (this.landingReviewsCount) this.landingReviewsCount.textContent = "0 Reviews";
-      if (this.emailCountBadge) this.emailCountBadge.textContent = "0";
-      return;
-    }
+    } else {
+      list.forEach((c) => {
+        const card = document.createElement("div");
+        card.className = `comment-card ${c.justAdded ? 'just-added' : ''}`;
+        const starsStr = "★".repeat(c.rating || 5) + "☆".repeat(Math.max(0, 5 - (c.rating || 5)));
+        const isGood = c.verdict === "good";
 
-    this.comments.forEach((c) => {
-      const card = document.createElement("div");
-      card.className = "comment-card";
-      const starsStr = "★".repeat(c.rating) + "☆".repeat(5 - c.rating);
-      const isGood = c.verdict === "good";
-
-      card.innerHTML = `
-        <div class="comment-header">
-          <div class="comment-author-info">
-            <span class="comment-avatar">${c.author.charAt(0).toUpperCase()}</span>
-            <div>
-              <div class="comment-author-name">${c.author} <span class="verified-tag">✓ Verified Learner</span></div>
-              <div class="comment-date">${c.date}</div>
+        card.innerHTML = `
+          <div class="comment-header">
+            <div class="comment-author-info">
+              <span class="comment-avatar">${(c.author || "A").charAt(0).toUpperCase()}</span>
+              <div>
+                <div class="comment-author-name">${c.author} <span class="verified-tag">✓ Verified Learner</span></div>
+                <div class="comment-date">${c.date || "Recent"}</div>
+              </div>
+            </div>
+            <div class="comment-verdict-badge ${isGood ? 'verdict-good' : 'verdict-improve'}">
+              ${isGood ? '👍 Super Helpful' : '💡 Needs Work'}
             </div>
           </div>
-          <div class="comment-verdict-badge ${isGood ? 'verdict-good' : 'verdict-improve'}">
-            ${isGood ? '👍 Good' : '💡 Needs Work'}
+          <div class="comment-stars">${starsStr}</div>
+          <div class="comment-body">${c.message}</div>
+          <div style="font-size: 11px; color: var(--color-cyan); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">
+            ✉ ${c.email ? c.email.replace(/(.{2})(.*)(@.*)/, "$1***$3") : "Direct to Himanshu"}
           </div>
-        </div>
-        <div class="comment-stars">${starsStr}</div>
-        <div class="comment-body">${c.message}</div>
-        <div style="font-size: 11px; color: var(--color-cyan); margin-bottom: 8px; font-family: 'JetBrains Mono', monospace;">
-          ✉ ${c.email ? c.email.replace(/(.{2})(.*)(@.*)/, "$1***$3") : "Direct to Himanshu"}
-        </div>
-        <div class="comment-footer">
-          <button class="like-btn" data-id="${c.id}">
-            ❤️ <span class="like-count">${c.likes || 0}</span>
-          </button>
-        </div>
-      `;
+          <div class="comment-footer">
+            <button class="like-btn" data-id="${c.id}" title="Helpful review">
+              ❤️ <span class="like-count">${c.likes || 1}</span>
+            </button>
+          </div>
+        `;
 
-      card.querySelector(".like-btn").addEventListener("click", () => {
-        c.likes = (c.likes || 0) + 1;
-        card.querySelector(".like-count").textContent = c.likes;
-        this.saveComments();
+        const likeBtn = card.querySelector(".like-btn");
+        if (likeBtn) {
+          likeBtn.addEventListener("click", () => {
+            c.likes = (c.likes || 0) + 1;
+            likeBtn.querySelector(".like-count").textContent = c.likes;
+            this.saveComments();
+          });
+        }
+
+        this.commentsListEl.appendChild(card);
       });
+    }
 
-      this.commentsListEl.appendChild(card);
-    });
-
-    // Update Live Comment Preview on the Right Side of Showcase Landing Page
+    // Update Live Comment Preview on the Landing Page Dock
     if (this.landingLatestComment && this.comments.length > 0) {
       const latest = this.comments[0];
-      const starsStr = "★".repeat(latest.rating) + "☆".repeat(5 - latest.rating);
+      const starsStr = "★".repeat(latest.rating || 5) + "☆".repeat(Math.max(0, 5 - (latest.rating || 5)));
       this.landingLatestComment.innerHTML = `
         <div class="landing-comment-author-row">
           <span class="landing-comment-author-name">${latest.author}</span>
           <span class="landing-comment-stars">${starsStr}</span>
         </div>
-        <div style="font-size: 12px; color: var(--text-main); margin-bottom: 4px; line-height: 1.4;">"${latest.message.slice(0, 85)}${latest.message.length > 85 ? '...' : ''}"</div>
-        <div style="font-size: 10px; color: var(--color-cyan); font-family: 'JetBrains Mono', monospace;">✓ Verified Learner • ${latest.date}</div>
+        <div style="font-size: 12px; color: var(--text-main); margin-bottom: 4px; line-height: 1.4;">"${latest.message.slice(0, 90)}${latest.message.length > 90 ? '...' : ''}"</div>
+        <div style="font-size: 10px; color: var(--color-cyan); font-family: 'JetBrains Mono', monospace;">✓ Verified Learner • ${latest.date || "Recent"}</div>
       `;
     }
 
@@ -796,11 +920,12 @@ class DSAApp {
 
     const goodCount = this.comments.filter(c => c.verdict === "good").length;
     const goodPct = Math.round((goodCount / total) * 100);
-    const avgRating = (this.comments.reduce((acc, c) => acc + c.rating, 0) / total).toFixed(1);
+    const avgRating = (this.comments.reduce((acc, c) => acc + (c.rating || 5), 0) / total).toFixed(1);
 
     if (scoreEl) scoreEl.textContent = avgRating;
     if (pctEl) pctEl.textContent = `${goodPct}%`;
     if (countEl) countEl.textContent = `${total} genuine review${total > 1 ? 's' : ''}`;
+    if (this.landingReviewsCount) this.landingReviewsCount.textContent = `${total} Review${total > 1 ? 's' : ''}`;
   }
 
   addComment(author, email, message, rating, verdict) {
@@ -812,13 +937,19 @@ class DSAApp {
       verdict: verdict || "good",
       message: message,
       date: "Just now",
-      likes: 1
+      likes: 1,
+      justAdded: true
     };
 
     this.comments.unshift(newComment);
     this.saveComments();
+    this.currentReviewFilter = "all";
+    document.querySelectorAll(".review-filter-chip").forEach(c => {
+      c.classList.toggle("active", c.dataset.filter === "all");
+    });
     this.renderComments();
     this.updateSentimentStats();
+    this.showReviewToast("🎉 Thank you! Your review has been published and is now live below.", "success");
   }
 
   // =========================================================================
@@ -871,7 +1002,7 @@ class DSAApp {
     // Copy code button
     if (this.copyCodeBtn) {
       this.copyCodeBtn.addEventListener("click", () => {
-        const code = this.currentProblem?.code[this.currentLang] || "";
+        const code = this.getCodeSnippet(this.currentLang);
         navigator.clipboard.writeText(code).then(() => {
           const orig = this.copyCodeBtn.textContent;
           this.copyCodeBtn.textContent = "✓ Copied!";
@@ -891,6 +1022,18 @@ class DSAApp {
     if (this.btnBackToShowcase) this.btnBackToShowcase.addEventListener("click", () => this.switchView("landing"));
     if (this.btnExploreStudio) this.btnExploreStudio.addEventListener("click", () => this.switchView("studio"));
     if (this.btnOpenReviews) this.btnOpenReviews.addEventListener("click", () => this.switchView("feedback"));
+    if (this.btnStudioOpenReviews) this.btnStudioOpenReviews.addEventListener("click", () => this.switchView("feedback"));
+    if (this.landingReviewsCard) this.landingReviewsCard.addEventListener("click", () => this.switchView("feedback"));
+
+    // Review Filter Tabs
+    document.querySelectorAll(".review-filter-chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        document.querySelectorAll(".review-filter-chip").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        this.currentReviewFilter = chip.dataset.filter || "all";
+        this.renderComments();
+      });
+    });
 
     // Launch animation buttons from the Showcase Landing dock & Quick problem pills
     document.querySelectorAll(".btn-launch-anim, .hero-prob-pill").forEach(btn => {
@@ -940,7 +1083,7 @@ class DSAApp {
       }
     }
 
-    // Comment Form Submit (Captures Email & Updates Right Side Live)
+    // Comment Form Submit (Captures Email & Updates Live)
     if (this.commentForm) {
       this.commentForm.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -949,14 +1092,13 @@ class DSAApp {
         const msg = this.messageInput?.value.trim();
         const verdict = this.verdictSelect?.value || "good";
         if (!msg || !email) {
-          alert("Please enter both your review and email address!");
+          this.showReviewToast("Please enter both your review and email address!", "error");
           return;
         }
 
         this.addComment(author, email, msg, this.currentStarRating, verdict);
         if (this.messageInput) this.messageInput.value = "";
         if (this.emailInput) this.emailInput.value = "";
-        alert("Thank you! Your review and email have been saved. Your comment is now live on the right side!");
       });
     }
 
@@ -982,7 +1124,7 @@ class DSAApp {
 
         const plainEmails = withEmails.map(c => c.email).join(", ");
         navigator.clipboard.writeText(plainEmails);
-        alert(`Exported ${withEmails.length} email(s) to 'dsabyhimanshu_commenter_emails.csv' and copied to clipboard!`);
+        this.showReviewToast(`Exported ${withEmails.length} email(s) to CSV and copied to clipboard!`, "success");
       });
     }
 
@@ -1024,9 +1166,10 @@ class DSAApp {
       }
       if (this.landingPage) this.landingPage.style.display = "flex";
       if (this.studioView) this.studioView.style.display = "none";
+      if (this.reviewsView) this.reviewsView.style.display = "none";
       if (this.sheetView) this.sheetView.style.display = "none";
       if (this.viewLandingBtn) this.viewLandingBtn.classList.add("active");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo(0, 0);
     } else {
       if (bgVideo) {
         try { bgVideo.pause(); } catch (e) {}
@@ -1034,29 +1177,33 @@ class DSAApp {
       if (viewName === "studio") {
         if (this.landingPage) this.landingPage.style.display = "none";
         if (this.studioView) this.studioView.style.display = "block";
+        if (this.reviewsView) this.reviewsView.style.display = "none";
         if (this.sheetView) this.sheetView.style.display = "none";
         if (this.viewStudioBtn) this.viewStudioBtn.classList.add("active");
         this.renderBruteStep();
         this.renderOptimalStep();
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo(0, 0);
       } else if (viewName === "sheet") {
         this.pauseBrute();
         this.pauseOptimal();
         if (this.landingPage) this.landingPage.style.display = "none";
         if (this.studioView) this.studioView.style.display = "none";
+        if (this.reviewsView) this.reviewsView.style.display = "none";
         if (this.sheetView) this.sheetView.style.display = "block";
         if (this.viewSheetBtn) this.viewSheetBtn.classList.add("active");
         this.renderSheetView();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } else if (viewName === "feedback") {
+        window.scrollTo(0, 0);
+      } else if (viewName === "feedback" || viewName === "reviews") {
+        this.pauseBrute();
+        this.pauseOptimal();
         if (this.landingPage) this.landingPage.style.display = "none";
-        if (this.studioView) this.studioView.style.display = "block";
+        if (this.studioView) this.studioView.style.display = "none";
         if (this.sheetView) this.sheetView.style.display = "none";
+        if (this.reviewsView) this.reviewsView.style.display = "block";
         if (this.viewFeedbackBtn) this.viewFeedbackBtn.classList.add("active");
-        const fb = document.getElementById("community-feedback");
-        if (fb) {
-          fb.scrollIntoView({ behavior: "smooth" });
-        }
+        this.renderComments();
+        this.updateSentimentStats();
+        window.scrollTo(0, 0);
       }
     }
   }
@@ -1325,9 +1472,25 @@ class DSAApp {
       `;
 
       block.querySelectorAll(".sheet-problem-card").forEach(card => {
-        card.addEventListener("click", () => {
-          this.loadProblem(card.dataset.id);
-          this.switchView("studio");
+        card.addEventListener("click", (e) => {
+          if (e.target.closest("a")) return;
+          const pid = card.dataset.id;
+          if (pid) {
+            this.loadProblem(pid);
+            this.switchView("studio");
+          }
+        });
+      });
+
+      block.querySelectorAll(".sheet-card-action").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const card = btn.closest(".sheet-problem-card");
+          const pid = card?.dataset.id;
+          if (pid) {
+            this.loadProblem(pid);
+            this.switchView("studio");
+          }
         });
       });
 

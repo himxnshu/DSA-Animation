@@ -122,6 +122,20 @@
             <span class="btn-start-arrow">➔</span>
           </button>
         </div>
+
+        <!-- Live Community Reviews Preview on Landing Page -->
+        <div class="landing-comments-preview" id="landing-reviews-preview" title="View community feedback">
+          <div class="landing-comment-author-row">
+            <span class="landing-comment-author-name">💬 Community Reviews</span>
+            <span class="landing-reviews-badge" id="landing-reviews-count">0 Reviews</span>
+          </div>
+          <div id="landing-latest-comment" class="landing-latest-card">
+            <div style="font-size: 12px; color: var(--text-muted); font-style: italic;">Loading genuine community reviews...</div>
+          </div>
+          <button id="btn-open-reviews" class="landing-reviews-link-btn" title="Open Community Reviews">
+            <span>Read All Reviews & Drop Yours</span> ➔
+          </button>
+        </div>
       </div>
     </section>
 
@@ -383,7 +397,26 @@
         <pre id="code-content" class="code-content"><code></code></pre>
       </div>
 
-      <!-- COMMUNITY FEEDBACK & REVIEWS SECTION (Genuine Feedback Only) -->
+      <!-- STUDIO FOOTER COMMUNITY REVIEWS BANNER -->
+      <div class="studio-feedback-banner">
+        <div class="studio-banner-left">
+          <span style="font-size: 22px;">💬</span>
+          <div>
+            <div style="font-weight: 800; font-size: 15px; color: #fff;">Community Feedback & Genuine Reviews</div>
+            <div style="font-size: 12px; color: var(--text-muted);">See what developers are saying, or drop your suggestions for new problems!</div>
+          </div>
+        </div>
+        <button id="btn-studio-open-reviews" class="btn-studio-reviews-action" title="Open Reviews Page">
+          <span>Read Reviews & Post Yours</span> ➔
+        </button>
+      </div>
+
+    </section>
+
+    <!-- =========================================================================
+         VIEW 3: COMMUNITY FEEDBACK & REVIEWS (DEDICATED FULL VIEW)
+         ========================================================================= -->
+    <section id="reviews-view" class="reviews-page-view" style="display: none;">
       <section class="feedback-section" id="community-feedback">
         <div class="feedback-header">
           <div class="feedback-title-group">
@@ -408,6 +441,7 @@
           <!-- Submit Feedback Form -->
           <div class="comment-form-box">
             <h3>Drop Your Genuine Feedback / Review</h3>
+            <div id="review-toast" class="review-toast" style="display: none;"></div>
             <form id="comment-form">
               <div class="form-group">
                 <label class="form-label" for="comment-author">Your Name / Handle:</label>
@@ -458,23 +492,30 @@
           <div class="comments-feed-container">
             <div class="comments-feed-header">
               <h3 style="font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
-                <span>💬</span> Live Comments (Right Side)
+                <span>💬</span> Live Comments (<span id="feed-live-count">0</span>)
               </h3>
               <button id="btn-export-emails" class="btn-export-emails"
                 title="Export / Copy all collected emails to clipboard">
                 📥 Export Emails (<span id="email-count-badge">0</span>)
               </button>
             </div>
+
+            <!-- Review Filter Tabs -->
+            <div class="review-filter-bar">
+              <button class="review-filter-chip active" data-filter="all">All (<span id="filter-all-badge">0</span>)</button>
+              <button class="review-filter-chip" data-filter="5star">5 ★ Rating (<span id="filter-5star-badge">0</span>)</button>
+              <button class="review-filter-chip" data-filter="good">Super Helpful 👍 (<span id="filter-good-badge">0</span>)</button>
+            </div>
+
             <div class="comments-feed" id="comments-list">
-              <!-- Dynamically populated from localStorage (genuine only) -->
+              <!-- Dynamically populated from localStorage & verified community reviews -->
             </div>
           </div>
         </div>
       </section>
-
     </section>
 
-    <!-- VIEW 3: INFOGRAPHIC CHEAT SHEET -->
+    <!-- VIEW 4: INFOGRAPHIC CHEAT SHEET -->
     <section id="sheet-view" class="cheat-sheet-view" style="display: none;">
       <!-- Dynamically populated by app.js -->
     </section>
